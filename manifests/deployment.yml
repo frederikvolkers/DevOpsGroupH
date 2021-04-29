@@ -17,3 +17,8 @@ spec:
           image: tftestfrvoacr.azurecr.io/frederikvolkersdevopsgrouph
           ports:
           - containerPort: 80
+          env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: PRODUCTION
+          - name: SQLSERVER_CONNECTIONSTRING
+            value: "Server=tcp:minitwit-neutrals.database.windows.net,1433;Initial Catalog=minitwitDb;Persist Security Info=False;User ID=neutrals;Password=Cfias5Vm5eHYu56;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" 
