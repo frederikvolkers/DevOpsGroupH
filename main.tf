@@ -3,27 +3,6 @@ provider "azurerm" { #specify the provider
     features {} #specify features
 }
 
-# terraform {
-#     backend "azurerm" { 
-#       resource_group_name   = "tfmainrg"
-#       storage_account_name  = "storageacctftest"
-#       container_name        = "terraformstate"
-#       key                   = "terraform.tfstate"
-#       primary_access_key    = "nk+qDk3qFRTFuU84uZJaL9t2+dBGEM8Ii6YWSn5USc337vXYKb//DNapw4ZN+eJnNjl/RbIbdK1rop4iYCvfiQ=="
-#     }
-# }
-
-data "terraform_remote_state" "foo" {
-  backend = "azurerm"
-  config = {
-    resource_group_name   = "tfmainrg"
-    storage_account_name  = "storageacctftest"
-    container_name        = "terraformstate"
-    key                   = "terraform.tfstate"
-    access_key    = "nk+qDk3qFRTFuU84uZJaL9t2+dBGEM8Ii6YWSn5USc337vXYKb//DNapw4ZN+eJnNjl/RbIbdK1rop4iYCvfiQ=="
-  }
-}
-
 resource "azurerm_resource_group" "tf_test" { #create resource group, tf_test is not the name of the resource group, but rather a tag
     name = "tfmainrg" #name of the RG
     location = "West Europe" #netherlands vs North Europe which is Ireland
@@ -148,6 +127,17 @@ resource "azurerm_storage_account" "storage" {
   location                 = azurerm_resource_group.tf_test.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
+}
+
+data "terraform_remote_state" "foo" {
+  backend = "azurerm"
+  config = {
+    resource_group_name   = "tfmainrg"
+    storage_account_name  = "storageacctftest"
+    container_name        = "terraformstate"
+    key                   = "terraform.tfstate"
+    access_key    = "nk+qDk3qFRTFuU84uZJaL9t2+dBGEM8Ii6YWSn5USc337vXYKb//DNapw4ZN+eJnNjl/RbIbdK1rop4iYCvfiQ=="
+  }
 }
 
 resource "azurerm_sql_server" "azsqlserver" {
