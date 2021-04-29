@@ -8,7 +8,7 @@ terraform {
       resource_group_name   = "tfmainrg"
       storage_account_name  = "storageacctftest"
       container_name        = "terraformstate"
-      key                   = "prod.terraform.tfstate"
+      key                   = "terraform.tfstate"
     }
 }
 
