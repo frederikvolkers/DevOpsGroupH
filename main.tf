@@ -138,7 +138,7 @@ resource "azurerm_app_service" "web_app_container-graf" {
     app_service_plan_id         = azurerm_app_service_plan.service_plan.id
     
     site_config {
-        linux_fx_version = "COMPOSE|${filebase64("./docker-compose.yml")}"
+        linux_fx_version = "COMPOSE|${filebase64("./mvc-minitwit/docker-compose.yml")}"
         always_on        = "true"
     }
 }
@@ -150,7 +150,7 @@ resource "azurerm_app_service" "web_app_container-seq" {
     app_service_plan_id         = azurerm_app_service_plan.service_plan.id
     
     site_config {
-        linux_fx_version = "COMPOSE|${filebase64("./Seq/docker-compose.yml")}"
+        linux_fx_version = "COMPOSE|${filebase64("./mvc-minitwit/Seq/docker-compose.yml")}"
         always_on        = "true"
     }
 }
