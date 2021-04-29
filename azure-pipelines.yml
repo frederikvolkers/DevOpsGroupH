@@ -18,7 +18,7 @@ stages:
         displayName: 'install'
         #dependsOn: Build
         inputs:
-          terraformVersion: '0.15.1'
+          terraformVersion: '0.15.0'
       - task: TerraformTaskV1@0
         displayName: init
         inputs:
@@ -29,7 +29,7 @@ stages:
           backendAzureRmStorageAccountName: 'storageacctftest'
           backendAzureRmContainerName: 'terraformstate'
           backendAzureRmKey: 'terraform.tfstate'
-          commandOptions: '-input=false'
+          commandOptions: -input=false
       - task: TerraformTaskV1@0
         displayName: 'validate'
         inputs:
@@ -49,7 +49,7 @@ stages:
           - task: TerraformInstaller@0
             displayName: 'install'
             inputs:
-              terraformVersion: '0.15.1'
+              terraformVersion: '0.15.0'
           - task: TerraformTaskV1@0
             displayName: init
             inputs:
