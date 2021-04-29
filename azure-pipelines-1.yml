@@ -129,11 +129,22 @@ stages:
           inputs:
             provider: 'azurerm'
             command: 'plan'
-            environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+            backendServiceArm: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+            backendAzureRmResourceGroupName: 'tfmainrg'
+            backendAzureRmStorageAccountName: 'storageacctftest'
+            backendAzureRmContainerName: 'terraformstate'
+            backendAzureRmKey: 'terraform.tfstate'
+            commandOptions: '-input=false'
         - task: TerraformTaskV1@0 
           displayName: 'apply'
           inputs:
             provider: 'azurerm'
             command: 'apply'
-            environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+            backendServiceArm: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+            backendAzureRmResourceGroupName: 'tfmainrg'
+            backendAzureRmStorageAccountName: 'storageacctftest'
+            backendAzureRmContainerName: 'terraformstate'
+            backendAzureRmKey: 'terraform.tfstate'
+            commandOptions: '-input=false'
+        
 
