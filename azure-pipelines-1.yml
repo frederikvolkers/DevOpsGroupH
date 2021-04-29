@@ -14,7 +14,7 @@ variables:
   dockerRegistryServiceConnection: 'ffb67b2f-0be2-49b4-82d3-f58ced91bb9f'
   imageRepository: 'frederikvolkersdevopsgrouph'
   containerRegistry: 'tftestfrvoacr.azurecr.io'
-  dockerfilePath: '**/Dockerfile'
+  dockerfilePath: '**/mvc-minitwit/Dockerfile'
   tag: '$(Build.BuildId)'
   imagePullSecret: 'tftestfrvoacr2045080e-auth'
 
