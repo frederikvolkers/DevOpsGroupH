@@ -28,7 +28,7 @@ stages:
           backendAzureRmResourceGroupName: 'tfmainrg'
           backendAzureRmStorageAccountName: 'storageacctftest'
           backendAzureRmContainerName: 'azuredevcli'
-          backendAzureRmKey: 'terraform.tfstate'
+          backendAzureRmKey: 'prod.terraform.tfstate'
       - task: TerraformTaskV1@0
         displayName: 'validate'
         inputs:
@@ -58,7 +58,7 @@ stages:
               backendAzureRmResourceGroupName: 'tfmainrg'
               backendAzureRmStorageAccountName: 'storageacctftest'
               backendAzureRmContainerName: 'azuredevcli'
-              backendAzureRmKey: 'terraform.tfstate'
+              backendAzureRmKey: 'prod.terraform.tfstate'
           - task: TerraformTaskV1@0
             inputs:
               provider: 'azurerm'
