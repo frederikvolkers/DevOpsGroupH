@@ -8,78 +8,30 @@ trigger:
 resources:
   - repo: self
 
-variables:
-  tag: '$(Build.BuildId)'
-  ImageName: 'neutralsminitwit:$(Build.BuildId)'
-
 stages:
-  - stage: Build
-    displayName: Build image
+  - stage: Provision #terraform
+    displayName: 'Terraforming on Azure..'
+    dependsOn: Build
     jobs:
-      - job: Build
-        displayName: Test and Build
-        pool:
-          vmImage: ubuntu-latest
-        steps:
-          - task: SonarCloudPrepare@1
-            inputs:
-              SonarCloud: 'SonarCloud-MiniTwit'
-              organization: 'devopsgrouph'
-              scannerMode: 'MSBuild'
-              projectKey: 'albertbethlowsky_DevOpsGroupH'
-              projectName: 'DevOpsGroupH'
-              extraProperties: |
-                sonar.exclusions=**/obj/**,**/*.dll
-                sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
-                sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
+    - job: Provision  
+      displayName: 'Provisioning Container Instances'
+      pool:
+        vmImage: ubuntu-latest
+      variables:
+      - group: TerraformEnvVars
+      steps: #input script, what you would write in cmd
+        - script: | 
+            set -e
+            cd mvc-minitwit
+            terraform init -input=false 
+            terraform apply -input=false -auto-approve
+          name: 'RunTerraform'
+          displayName: 'Run Terraform'
+          env:
+            ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+            # might need more env vars
+            # they are from pipeline library
+            # they are passed to terraform
+          #tfstate and backup file can be stored in azure instead. not a must. 
 
-          - task: DotNetCoreCLI@2
-            displayName: 'dotnet test'
-            inputs:
-              command: test
-              projects: '**/*HomeControllerTests/*.csproj'
-              arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
-              publishTestResults: true
-          ##arguments: "--configuration $(BuildConfiguration)"
 
-          - task: Docker@2
-            displayName: 'Build and push an image to container registry'
-            inputs:
-              command: buildAndPush
-              repository: 'NeutralsMinitwit'
-              dockerfile: '$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile'
-              containerRegistry: 'ACR'
-              buildContext: '.'
-              tags: |
-                $(tag)
-
-          # - task: Docker@1
-          #   displayName: 'Push the Docker image to Dockerhub'
-          #   inputs:
-          #     azureSubscriptionEndpoint: ACR
-          #     azureContainerRegistry: neutralsminitwit.azurecr.io
-          #     #containerregistrytype: 'Container Registry'
-          #     #dockerRegistryEndpoint: 'ACR'
-          #     command: 'Push an image'
-          #     imageName: '$(ImageName)'
-          #   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-
-          - task: GitHubRelease@1
-            inputs:
-              gitHubConnection: 'albertbethlowsky'
-              repositoryName: '$(Build.Repository.Name)'
-              action: 'create'
-              target: '$(Build.SourceVersion)'
-              tagSource: 'gitTag'
-              tagPattern: 'release-v[0-9]*\S*'
-              changeLogCompareToRelease: 'lastFullRelease'
-              changeLogType: 'commitBased'
-              title: '$(Build.BuildNumber)'
-              addChangeLog: true
-
-          - task: SonarCloudAnalyze@1
-            displayName: 'Run SonarCloud analysis'
-          - task: SonarCloudPublish@1
-            displayName: 'SonarCloud publish'
-            inputs:
-              pollingTimeoutSec: '300'
