@@ -29,6 +29,7 @@ stages:
           backendAzureRmStorageAccountName: 'storageacctftest'
           backendAzureRmContainerName: 'terraformstate'
           backendAzureRmKey: 'prod.terraform.tfstate'
+          commandOptions: '-input=false'
       - task: TerraformTaskV1@0
         displayName: 'validate'
         inputs:
@@ -59,6 +60,7 @@ stages:
               backendAzureRmStorageAccountName: 'storageacctftest'
               backendAzureRmContainerName: 'terraformstate'
               backendAzureRmKey: 'prod.terraform.tfstate'
+              commandOptions: '-input=false'
           - task: TerraformTaskV1@0
             inputs:
               provider: 'azurerm'
