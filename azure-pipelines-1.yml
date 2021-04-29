@@ -82,7 +82,6 @@ stages:
     steps:
     - task: TerraformInstaller@0
       displayName: 'install'
-      dependsOn: Build
       inputs:
         terraformVersion: '0.15.0'
     - task: TerraformTaskV1@0
