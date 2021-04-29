@@ -9,28 +9,56 @@ resources:
   - repo: self
 
 stages:
-  - stage: Provision #terraform
-    displayName: 'Terraforming on Azure..'
-    #dependsOn: Build
+  - stage: validate
     jobs:
-    - job: Provision  
-      displayName: 'Provisioning Container Instances'
-      pool:
-        vmImage: ubuntu-latest
-      variables:
-      - group: TerraformEnvVars
-      steps: #input script, what you would write in cmd
-        - script: | 
-            set -e
-            terraform init -input=false 
-            terraform apply -input=false -auto-approve
-          name: 'RunTerraform'
-          displayName: 'Run Terraform'
-          env:
-            ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
-            # might need more env vars
-            # they are from pipeline library
-            # they are passed to terraform
-          #tfstate and backup file can be stored in azure instead. not a must. 
+    - job: validate
+      continueOnError: false
+      steps:
+      - task: TerraformInstaller@0
+        displayName: 'install'
+        #dependsOn: Build
+        inputs:
+          terraformVersion: '0.12.26'
+      - task: TerraformTaskV1@0
+        displayName: init
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          backendServiceArm: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+          backendAzureRmResourceGroupName: 'tfmainrg'
+          backendAzureRmStorageAccountName: 'storageacctftest'
+          backendAzureRmContainerName: 'azuredevcli'
+          backendAzureRmKey: 'terraform.tfstate'
+      - task: TerraformTaskV1@0
+        displayName: 'validate'
+        inputs:
+          provider: 'azurerm'
+          command: 'validate'
+  
+  - stage: deploy
+    jobs:
+    - deployment: deploy_terraform
+      continueOnError: false
+      environment: 'dev'
+      strategy:
+       runOnce:
+        deploy:
+         steps:
+          - checkout: self
+          - task: TerraformInstaller@0
+            displayName: 'install'
+            inputs:
+              terraformVersion: '0.12.26'
+          - task: TerraformTaskV1@0
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+          - task: TerraformTaskV1@0
+            displayName: 'apply'
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
 
 
