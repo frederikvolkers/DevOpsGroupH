@@ -50,6 +50,16 @@ stages:
             inputs:
               terraformVersion: '0.12.26'
           - task: TerraformTaskV1@0
+            displayName: init
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+              backendAzureRmResourceGroupName: 'tfmainrg'
+              backendAzureRmStorageAccountName: 'storageacctftest'
+              backendAzureRmContainerName: 'azuredevcli'
+              backendAzureRmKey: 'terraform.tfstate'
+          - task: TerraformTaskV1@0
             inputs:
               provider: 'azurerm'
               command: 'plan'
