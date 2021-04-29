@@ -58,10 +58,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
       enabled = false
     }
 
-    kube_dashboard {
-      enabled = true
-    }
-
     oms_agent {
       enabled = false
     }
