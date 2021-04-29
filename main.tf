@@ -29,6 +29,45 @@ resource "azurerm_resource_group" "tf_test" { #create resource group, tf_test is
     location = "West Europe" #netherlands vs North Europe which is Ireland
 }
 
+resource "azurerm_kubernetes_cluster" "aks" {
+    name = "mvc-minitwit_aks"
+    resource_group_name = azurerm_resource_group.tf_test.name
+    location = azurerm_resource_group.tf_test.location
+    dns_prefix = "mvcminitwitaks"
+
+    default_node_pool {
+        name = "default"
+        node_count = 1
+        vm_size = "Standard_D2_v2"
+    }
+
+    identity {
+        type = "SystemAssigned"
+    }
+
+    addon_profile {
+    aci_connector_linux {
+      enabled = false
+    }
+
+    azure_policy {
+      enabled = false
+    }
+
+    http_application_routing {
+      enabled = false
+    }
+
+    kube_dashboard {
+      enabled = true
+    }
+
+    oms_agent {
+      enabled = false
+    }
+  }
+}
+
 #init #the link between terra and provider
 #plan #plan for the developer, what we want to do, does not execute it. If all the resource groups already exist, then skip the plan step. It is only to initiliaze a resource group.  
 #apply #applying the plan. 
@@ -214,7 +253,13 @@ output "app_service_default_hostname" {
   value = "https://${azurerm_app_service.app-service.default_site_hostname}"
 }
 
+output "client_certificate" {
+    value = azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate
+}
 
+output "kube_config" {
+    value = azurerm_kubernetes_cluster.aks.kube_config_raw
+}
 
 
 #HOW TO CREATE RESOURCES WITHIN RG, DOCKERHUB: 
