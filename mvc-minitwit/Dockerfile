@@ -8,11 +8,11 @@ WORKDIR /src
 COPY . /mvc-minitwit
 RUN dotnet restore "/mvc-minitwit/mvc-minitwit.csproj"
 COPY . .
-WORKDIR "/src/mvc-minitwit/"
-RUN dotnet build "mvc-minitwit.csproj" -c Release -o /app/build
+WORKDIR /src
+RUN dotnet build "/mvc-minitwit/mvc-minitwit.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "mvc-minitwit.csproj" -c Release -o /app/publish
+RUN dotnet publish "/mvc-minitwit/mvc-minitwit.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
