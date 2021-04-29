@@ -1,5 +1,5 @@
 provider "azurerm" { #specify the provider
-    version = "2.13.0" #specify version
+    version = "2.56.0" #specify version
     features {} #specify features
 }
 
