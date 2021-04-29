@@ -13,8 +13,6 @@ terraform {
     }
 }
 
-data "azurerm_client_config" "current" {}
-
 resource "azurerm_resource_group" "tf_test" { #create resource group, tf_test is not the name of the resource group, but rather a tag
     name = "tfmainrg" #name of the RG
     location = "West Europe" #netherlands vs North Europe which is Ireland
