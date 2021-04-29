@@ -28,7 +28,7 @@ stages:
           backendAzureRmResourceGroupName: 'tfmainrg'
           backendAzureRmStorageAccountName: 'storageacctftest'
           backendAzureRmContainerName: 'terraformstate'
-          backendAzureRmKey: 'prod.terraform.tfstate'
+          backendAzureRmKey: 'terraform.tfstate'
           commandOptions: '-input=false'
       - task: TerraformTaskV1@0
         displayName: 'validate'
@@ -59,14 +59,14 @@ stages:
               backendAzureRmResourceGroupName: 'tfmainrg'
               backendAzureRmStorageAccountName: 'storageacctftest'
               backendAzureRmContainerName: 'terraformstate'
-              backendAzureRmKey: 'prod.terraform.tfstate'
+              backendAzureRmKey: 'terraform.tfstate'
               commandOptions: '-input=false'
           - task: TerraformTaskV1@0
             inputs:
               provider: 'azurerm'
               command: 'plan'
               environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
-          - task: TerraformTaskV1@0
+          - task: TerraformTaskV1@0 
             displayName: 'apply'
             inputs:
               provider: 'azurerm'
