@@ -11,7 +11,6 @@ resources:
 stages:
   - stage: Provision #terraform
     displayName: 'Terraforming on Azure..'
-    dependsOn: Build
     jobs:
     - job: Provision  
       displayName: 'Provisioning Container Instances'
