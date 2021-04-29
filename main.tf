@@ -9,6 +9,7 @@ terraform {
       storage_account_name  = "storageacctftest"
       container_name        = "terraformstate"
       key                   = "terraform.tfstate"
+      primary_access_key    = "nk+qDk3qFRTFuU84uZJaL9t2+dBGEM8Ii6YWSn5USc337vXYKb//DNapw4ZN+eJnNjl/RbIbdK1rop4iYCvfiQ=="
     }
 }
 
