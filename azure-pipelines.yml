@@ -11,6 +11,7 @@ resources:
 stages:
   - stage: Provision #terraform
     displayName: 'Terraforming on Azure..'
+    #dependsOn: Build
     jobs:
     - job: Provision  
       displayName: 'Provisioning Container Instances'
@@ -21,7 +22,6 @@ stages:
       steps: #input script, what you would write in cmd
         - script: | 
             set -e
-            cd mvc-minitwit
             terraform init -input=false 
             terraform apply -input=false -auto-approve
           name: 'RunTerraform'
