@@ -18,7 +18,7 @@ stages:
         displayName: 'install'
         #dependsOn: Build
         inputs:
-          terraformVersion: '0.14.0'
+          terraformVersion: '0.12.26'
       - task: TerraformTaskV1@0
         displayName: init
         inputs:
@@ -48,7 +48,7 @@ stages:
           - task: TerraformInstaller@0
             displayName: 'install'
             inputs:
-              terraformVersion: '0.14.0'
+              terraformVersion: '0.12.26'
           - task: TerraformTaskV1@0
             displayName: init
             inputs:
