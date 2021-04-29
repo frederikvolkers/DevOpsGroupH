@@ -93,7 +93,7 @@ stages:
         backendAzureRmResourceGroupName: 'tfmainrg'
         backendAzureRmStorageAccountName: 'storageacctftest'
         backendAzureRmContainerName: 'terraformstate'
-        backendAzureRmKey: 'terraform.tfstate'
+        backendAzureRmKey: 'tf.tfstate'
         commandOptions: -input=false
     - task: TerraformTaskV1@0
       displayName: 'validate'
@@ -123,7 +123,7 @@ stages:
             backendAzureRmResourceGroupName: 'tfmainrg'
             backendAzureRmStorageAccountName: 'storageacctftest'
             backendAzureRmContainerName: 'terraformstate'
-            backendAzureRmKey: 'terraform.tfstate'
+            backendAzureRmKey: 'tf.tfstate'
             commandOptions: '-input=false'
         - task: TerraformTaskV1@0
           inputs:
