@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: frederikvolkersdevopsgrouph 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frederikvolkersdevopsgrouph
+  template:
+    metadata:
+      labels:
+        app: frederikvolkersdevopsgrouph 
+    spec:
+      containers:
+        - name: frederikvolkersdevopsgrouph 
+          image: tftestfrvoacr.azurecr.io/frederikvolkersdevopsgrouph
+          ports:
+          - containerPort: 80
