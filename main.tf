@@ -14,15 +14,6 @@ data "terraform_remote_state" "foo" {
   }
 }
 
-terraform {
-  backend "azurerm" {
-    resource_group_name   = "tfmainrg"
-    storage_account_name  = "storageacctftest"
-    container_name        = "terraformstate"
-    key                   = "tf.tfstate"
-  }
-}
-
 resource "azurerm_resource_group" "tf_test" { #create resource group, tf_test is not the name of the resource group, but rather a tag
     name = "tfmainrg" #name of the RG
     location = "West Europe" #netherlands vs North Europe which is Ireland
