@@ -46,7 +46,6 @@ stages:
 
 - stage: Deploy
   displayName: Deploy stage
-  dependsOn: Build
 
   jobs:
   - deployment: Deploy
@@ -79,11 +78,11 @@ stages:
 - stage: TerraFormValidate
   jobs:
   - job: validate
-    dependsOn: Build
     continueOnError: false
     steps:
     - task: TerraformInstaller@0
       displayName: 'install'
+      dependsOn: Build
       inputs:
         terraformVersion: '0.15.0'
     - task: TerraformTaskV1@0
@@ -106,7 +105,6 @@ stages:
   jobs:
   - deployment: deploy_terraform
     continueOnError: false
-    dependsOn: Build
     environment: 'dev'
     strategy:
       runOnce:
