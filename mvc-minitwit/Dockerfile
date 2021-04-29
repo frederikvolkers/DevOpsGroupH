@@ -5,7 +5,7 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
-COPY ["mvc-minitwit/mvc-minitwit.csproj", "mvc-minitwit/"]
+COPY . /mvc-minitwit
 RUN dotnet restore "mvc-minitwit/mvc-minitwit.csproj"
 COPY . .
 WORKDIR "/src/mvc-minitwit/"
