@@ -124,34 +124,34 @@ stages:
       strategy:
         runOnce:
           deploy:
-          steps:
-          - checkout: self
-          - task: TerraformInstaller@0
-            displayName: 'install'
-            inputs:
-              terraformVersion: '0.15.0'
-          - task: TerraformTaskV1@0
-            displayName: init
-            inputs:
-              provider: 'azurerm'
-              command: 'init'
-              backendServiceArm: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
-              backendAzureRmResourceGroupName: 'tfmainrg'
-              backendAzureRmStorageAccountName: 'storageacctftest'
-              backendAzureRmContainerName: 'terraformstate'
-              backendAzureRmKey: 'tf.tfstate'
-              commandOptions: '-input=false'
-          - task: TerraformTaskV1@0
-            inputs:
-              provider: 'azurerm'
-              command: 'plan'
-              environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
-                  
-          - task: TerraformTaskV1@0 
-            displayName: 'apply'
-            inputs:
-              provider: 'azurerm'
-              command: 'apply'
-              environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+            steps:
+            - checkout: self
+            - task: TerraformInstaller@0
+              displayName: 'install'
+              inputs:
+                terraformVersion: '0.15.0'
+            - task: TerraformTaskV1@0
+              displayName: init
+              inputs:
+                provider: 'azurerm'
+                command: 'init'
+                backendServiceArm: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+                backendAzureRmResourceGroupName: 'tfmainrg'
+                backendAzureRmStorageAccountName: 'storageacctftest'
+                backendAzureRmContainerName: 'terraformstate'
+                backendAzureRmKey: 'tf.tfstate'
+                commandOptions: '-input=false'
+            - task: TerraformTaskV1@0
+              inputs:
+                provider: 'azurerm'
+                command: 'plan'
+                environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+                    
+            - task: TerraformTaskV1@0 
+              displayName: 'apply'
+              inputs:
+                provider: 'azurerm'
+                command: 'apply'
+                environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
           
 
