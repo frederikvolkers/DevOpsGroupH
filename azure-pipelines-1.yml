@@ -22,10 +22,10 @@ variables:
 
 stages:
   - stage: Build
-    displayName: Build stage
+    displayName: Build and Push Img to ACR
     jobs:
     - job: Build
-      displayName: Build
+      displayName: Build and push
       pool:
         vmImage: $(vmImageName)
       steps:
@@ -92,6 +92,7 @@ stages:
 #               containers: |
 #                 $(containerRegistry)/$(imageRepository):$(tag)
   - stage: TerraFormValidate
+    displayName: Terraform Validating
     jobs:
     - job: validate
       continueOnError: false
@@ -117,6 +118,7 @@ stages:
           provider: 'azurerm'
           command: 'validate'
   - stage: TerraFormDeploy
+    displayName: Terraform Deploy
     jobs:
     - deployment: deploy_terraform
       continueOnError: false
