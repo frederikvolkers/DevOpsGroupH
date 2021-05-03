@@ -11,131 +11,147 @@ resources:
 variables:
 
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'ffb67b2f-0be2-49b4-82d3-f58ced91bb9f'
-  imageRepository: 'frederikvolkersdevopsgrouph'
-  containerRegistry: 'tftestfrvoacr.azurecr.io'
+  imageRepository: 'mvcminitwitACR'
+  containerRegistry: 'mvcminitwitacr.azurecr.io'
   dockerfilePath: '**/mvc-minitwit/Dockerfile'
   tag: '$(Build.BuildId)'
-  imagePullSecret: 'tftestfrvoacr2045080e-auth'
+  imagePullSecret: 'mvcminitwitacr2045080e-auth'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
-
 stages:
-- stage: Build
-  displayName: Build stage
-  jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Docker@2
-      displayName: Build and push an image to container registry
-      inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags: |
-          $(tag)
+  - stage: Build
+    displayName: Build stage
+    jobs:
+    - job: Build
+      displayName: Build
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - task: Docker@2
+        displayName: Build and push an image to container registry
+        inputs:
+          command: buildAndPush
+          repository: $(imageRepository)
+          dockerfile: $(dockerfilePath)
+          containerRegistry: 'ACR'
+          tags: |
+            $(tag)
+  #kubernetes cluster build:
+# - stage: Build
+#   displayName: Build stage
+#   jobs:
+#   - job: Build
+#     displayName: Build
+#     pool:
+#       vmImage: $(vmImageName)
+#     steps:
+#     - task: Docker@2
+#       displayName: Build and push an image to container registry
+#       inputs:
+#         command: buildAndPush
+#         repository: $(imageRepository)
+#         dockerfile: $(dockerfilePath)
+#         containerRegistry: $(dockerRegistryServiceConnection)
+#         tags: |
+#           $(tag)
 
-    - upload: manifests
-      artifact: manifests
+#     - upload: manifests
+#       artifact: manifests
 
-- stage: Deploy
-  displayName: Deploy stage
+# - stage: Deploy
+#   displayName: Deploy stage
 
-  jobs:
-  - deployment: Deploy
-    displayName: Deploy
-    pool:
-      vmImage: $(vmImageName)
-    environment: 'frederikvolkersDevOpsGroupH-2080.default'
-    strategy:
-      runOnce:
-        deploy:
+#   jobs:
+#   - deployment: Deploy
+#     displayName: Deploy
+#     pool:
+#       vmImage: $(vmImageName)
+#     environment: 'frederikvolkersDevOpsGroupH-2080.default'
+#     strategy:
+#       runOnce:
+#         deploy:
+#           steps:
+#           - task: KubernetesManifest@0
+#             displayName: Create imagePullSecret
+#             inputs:
+#               action: createSecret
+#               secretName: $(imagePullSecret)
+#               dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
+
+#           - task: KubernetesManifest@0
+#             displayName: Deploy to Kubernetes cluster
+#             inputs:
+#               action: deploy
+#               manifests: |
+#                 $(Pipeline.Workspace)/manifests/deployment.yml
+#                 $(Pipeline.Workspace)/manifests/service.yml
+#               imagePullSecrets: |
+#                 $(imagePullSecret)
+#               containers: |
+#                 $(containerRegistry)/$(imageRepository):$(tag)
+    - stage: TerraFormValidate
+    jobs:
+    - job: validate
+      continueOnError: false
+      steps:
+      - task: TerraformInstaller@0
+        displayName: 'install'
+        inputs:
+          terraformVersion: '0.15.0'
+      - task: TerraformTaskV1@0
+        displayName: init
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          backendServiceArm: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+          backendAzureRmResourceGroupName: 'tfmainrg'
+          backendAzureRmStorageAccountName: 'storageacctftest'
+          backendAzureRmContainerName: 'terraformstate'
+          backendAzureRmKey: 'tf.tfstate'
+          commandOptions: -input=false
+      - task: TerraformTaskV1@0
+        displayName: 'validate'
+        inputs:
+          provider: 'azurerm'
+          command: 'validate'
+    - stage: TerraFormDeploy
+    jobs:
+    - deployment: deploy_terraform
+      continueOnError: false
+      environment: 'dev'
+      strategy:
+        runOnce:
+          deploy:
           steps:
-          - task: KubernetesManifest@0
-            displayName: Create imagePullSecret
+          - checkout: self
+          - task: TerraformInstaller@0
+            displayName: 'install'
             inputs:
-              action: createSecret
-              secretName: $(imagePullSecret)
-              dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
-
-          - task: KubernetesManifest@0
-            displayName: Deploy to Kubernetes cluster
+              terraformVersion: '0.15.0'
+          - task: TerraformTaskV1@0
+            displayName: init
             inputs:
-              action: deploy
-              manifests: |
-                $(Pipeline.Workspace)/manifests/deployment.yml
-                $(Pipeline.Workspace)/manifests/service.yml
-              imagePullSecrets: |
-                $(imagePullSecret)
-              containers: |
-                $(containerRegistry)/$(imageRepository):$(tag)
-- stage: TerraFormValidate
-  jobs:
-  - job: validate
-    continueOnError: false
-    steps:
-    - task: TerraformInstaller@0
-      displayName: 'install'
-      inputs:
-        terraformVersion: '0.15.0'
-    - task: TerraformTaskV1@0
-      displayName: init
-      inputs:
-        provider: 'azurerm'
-        command: 'init'
-        backendServiceArm: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
-        backendAzureRmResourceGroupName: 'tfmainrg'
-        backendAzureRmStorageAccountName: 'storageacctftest'
-        backendAzureRmContainerName: 'terraformstate'
-        backendAzureRmKey: 'tf.tfstate'
-        commandOptions: -input=false
-    - task: TerraformTaskV1@0
-      displayName: 'validate'
-      inputs:
-        provider: 'azurerm'
-        command: 'validate'
-- stage: TerraFormDeploy
-  jobs:
-  - deployment: deploy_terraform
-    continueOnError: false
-    environment: 'dev'
-    strategy:
-      runOnce:
-       deploy:
-        steps:
-        - checkout: self
-        - task: TerraformInstaller@0
-          displayName: 'install'
-          inputs:
-            terraformVersion: '0.15.0'
-        - task: TerraformTaskV1@0
-          displayName: init
-          inputs:
-            provider: 'azurerm'
-            command: 'init'
-            backendServiceArm: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
-            backendAzureRmResourceGroupName: 'tfmainrg'
-            backendAzureRmStorageAccountName: 'storageacctftest'
-            backendAzureRmContainerName: 'terraformstate'
-            backendAzureRmKey: 'tf.tfstate'
-            commandOptions: '-input=false'
-        - task: TerraformTaskV1@0
-          inputs:
-            provider: 'azurerm'
-            command: 'plan'
-            environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
-                
-        - task: TerraformTaskV1@0 
-          displayName: 'apply'
-          inputs:
-            provider: 'azurerm'
-            command: 'apply'
-            environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
-        
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+              backendAzureRmResourceGroupName: 'tfmainrg'
+              backendAzureRmStorageAccountName: 'storageacctftest'
+              backendAzureRmContainerName: 'terraformstate'
+              backendAzureRmKey: 'tf.tfstate'
+              commandOptions: '-input=false'
+          - task: TerraformTaskV1@0
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+                  
+          - task: TerraformTaskV1@0 
+            displayName: 'apply'
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              environmentServiceNameAzureRM: 'Azure for Students(5fe8fe9e-ec72-4c24-8d51-122c0378b2ba)'
+          
 

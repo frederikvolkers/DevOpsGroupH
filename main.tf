@@ -39,40 +39,40 @@ resource "azurerm_key_vault" "kv" {
   }
 }
 
-resource "azurerm_kubernetes_cluster" "aks" {
-    name = "mvc-minitwit_aks"
-    resource_group_name = azurerm_resource_group.grouphrg.name
-    location = azurerm_resource_group.grouphrg.location
-    dns_prefix = "mvcminitwitaks"
+# resource "azurerm_kubernetes_cluster" "aks" {
+#     name = "mvc-minitwit_aks"
+#     resource_group_name = azurerm_resource_group.grouphrg.name
+#     location = azurerm_resource_group.grouphrg.location
+#     dns_prefix = "mvcminitwitaks"
 
-    default_node_pool {
-        name = "default"
-        node_count = 1
-        vm_size = "Standard_D2_v2"
-    }
+#     default_node_pool {
+#         name = "default"
+#         node_count = 1
+#         vm_size = "Standard_D2_v2"
+#     }
 
-    identity {
-        type = "SystemAssigned"
-    }
+#     identity {
+#         type = "SystemAssigned"
+#     }
 
-    addon_profile {
-    aci_connector_linux {
-      enabled = false
-    }
+#     addon_profile {
+#     aci_connector_linux {
+#       enabled = false
+#     }
 
-    azure_policy {
-      enabled = false
-    }
+#     azure_policy {
+#       enabled = false
+#     }
 
-    http_application_routing {
-      enabled = false
-    }
+#     http_application_routing {
+#       enabled = false
+#     }
 
-    oms_agent {
-      enabled = false
-    }
-  }
-}
+#     oms_agent {
+#       enabled = false
+#     }
+#   }
+# }
 
 #TO DO TO INITIALLY CREATE RG GROUP IF IT DOESNT EXIST: 
 # 1) write terraform init in cmd line, which creates .terraform folder
@@ -241,22 +241,22 @@ output "app_service_default_hostname" {
   value = "https://${azurerm_app_service.app-service.default_site_hostname}"
 }
 
-output "id" {
-  value = azurerm_kubernetes_cluster.aks.id
-}
+# output "id" {
+#   value = azurerm_kubernetes_cluster.aks.id
+# }
 
-output "client_key" {
-  value = azurerm_kubernetes_cluster.aks.kube_config.0.client_key
-}
+# output "client_key" {
+#   value = azurerm_kubernetes_cluster.aks.kube_config.0.client_key
+# }
 
-output "client_certificate" {
-  value = azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate
-}
+# output "client_certificate" {
+#   value = azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate
+# }
 
-output "cluster_ca_certificate" {
-  value = azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate
-}
+# output "cluster_ca_certificate" {
+#   value = azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate
+# }
 
-output "host" {
-  value = azurerm_kubernetes_cluster.aks.kube_config.0.host
-}
+# output "host" {
+#   value = azurerm_kubernetes_cluster.aks.kube_config.0.host
+# }
