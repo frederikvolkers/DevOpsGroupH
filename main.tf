@@ -10,35 +10,6 @@ resource "azurerm_resource_group" "grouphrg" { #create resource group, grouphrg 
     location = "West Europe" #netherlands vs North Europe which is Ireland
 }
 
-resource "azurerm_key_vault" "kv" {
-  name                        = "mvc-minitwit-keyvault"
-  location                    = azurerm_resource_group.grouphrg.location
-  resource_group_name         = azurerm_resource_group.grouphrg.name
-  enabled_for_disk_encryption = true
-  tenant_id                   = data.azurerm_client_config.current.tenant_id
-  soft_delete_retention_days  = 7
-  purge_protection_enabled    = false
-
-  sku_name = "standard"
-
-  access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = data.azurerm_client_config.current.object_id
-
-    key_permissions = [
-      "Get",
-    ]
-
-    secret_permissions = [
-      "Get",
-    ]
-
-    storage_permissions = [
-      "Get",
-    ]
-  }
-}
-
 # resource "azurerm_kubernetes_cluster" "aks" {
 #     name = "mvc-minitwit_aks"
 #     resource_group_name = azurerm_resource_group.grouphrg.name
@@ -92,20 +63,20 @@ resource "azurerm_container_registry" "acr" {
     admin_enabled               = true
 }
 
-# resource "azurerm_container_registry_webhook" "webhook" {
-#   name                = "NeutralsMinitwit"
-#   resource_group_name = azurerm_resource_group.grouphrg.name
-#   registry_name       = azurerm_container_registry.acr.name
-#   location            = azurerm_resource_group.grouphrg.location
+resource "azurerm_container_registry_webhook" "webhook" {
+  name                = "NeutralsMinitwit"
+  resource_group_name = azurerm_resource_group.grouphrg.name
+  registry_name       = azurerm_container_registry.acr.name
+  location            = azurerm_resource_group.grouphrg.location
 
-#   service_uri = "https://$neutrals-minitwit:l3c8r2vEm2HJj3WQaNmhSCgSEzsYTnksaBWPkmBJg6hdCk1SCdZPvQ5aCz81@neutrals-minitwit.scm.azurewebsites.net/docker/hook" #not safe!
-#   status      = "enabled"
-#   scope       = "neutralsminitwit:*"
-#   actions     = ["push"]
-#   custom_headers = {
-#     "Content-Type" = "application/json"
-#   }
-# }
+  service_uri = var.webhook_serviceuri #from container settings on web app
+  status      = "enabled"
+  scope       = "neutralsminitwit:*"
+  actions     = ["push"]
+  custom_headers = {
+    "Content-Type" = "application/json"
+  }
+}
 
 resource "azurerm_app_service_plan" "service_plan" {
     name                        = "mvc-minitwit-asp"
@@ -142,14 +113,13 @@ resource "azurerm_app_service" "app-service" {
     connection_string {
     name  = "MvcDbContext"
     type  = "SQLServer"
-    value = "Server=tcp:minitwit-neutrals.database.windows.net,1433;Initial Catalog=minitwitDb;Persist Security Info=False;User ID=neutrals;Password=Cfias5Vm5eHYu56;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" #NOT SECURED!!! connects to db in neutralsRG
+    value = var.server_conn  #NOT SECURED!!! connects to db in neutralsRG
   }
 }
 
 resource "azurerm_storage_account" "storage" {
   name                     = "mvcminitwitstorage"
   resource_group_name      = azurerm_resource_group.grouphrg.name
-  #app_service_plan_id      = azurerm_app_service_plan.service_plan.id
   location                 = azurerm_resource_group.grouphrg.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
@@ -167,8 +137,8 @@ resource "azurerm_sql_server" "azsqlserver" {
     #app_service_plan_id         = azurerm_app_service_plan.service_plan.id
     location                    = azurerm_resource_group.grouphrg.location
     version                     = "12.0"
-    administrator_login         = "frvo5098mvcminitwit"
-    administrator_login_password      = "Mvc50985098" #FIX THIS, e.g. Keyvault! 
+    administrator_login               = var.server_username
+    administrator_login_password      = var.server_password 
 
     extended_auditing_policy {
         storage_endpoint                        = azurerm_storage_account.storage.primary_blob_endpoint
@@ -229,7 +199,7 @@ data "terraform_remote_state" "trs" {
     storage_account_name  = azurerm_storage_account.storage.name
     container_name        = azurerm_storage_container.storagecontainer.name
     key                   = "tf.tfstate"
-    access_key    = "3PHWGdIkjMxXmiRw0PFN5EthmR/QuriheeKjQ80DC03cH5JGDhaaKlUbu177zekMUDEwMcU+yUhjtpQoV0IcSg=="
+    access_key    = var.storage_accesskey
   }
 }
 
@@ -239,6 +209,30 @@ output "app_service_name" {
 }
 output "app_service_default_hostname" {
   value = "https://${azurerm_app_service.app-service.default_site_hostname}"
+}
+output "db_connect_string" {
+  description = "MySQL database connection string"
+  value       = "Server=tcp:mvc-minitwit-server.database.windows.net,1433;Initial Catalog=mvc-minitwit-db;Persist Security Info=False;User ID=${var.server_username};Password=${var.server_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+}
+
+output "server_username" {
+  description = "Server Username"
+  value       = var.server_username
+}
+
+output "server_password" {
+  description = "Server Password"
+  value       = var.server_password
+}
+
+output "webhook_serviceuri" {
+  description = "Webhook Service Uri"
+  value       = var.webhook_serviceuri
+}
+
+output "storage_accesskey" {
+  description = "Storage Acceskey"
+  value       = var.storage_accesskey
 }
 
 # output "id" {

@@ -446,3 +446,4 @@ $RECYCLE.BIN/
 *.exe
 *.nc
 *.DS_store
+*.tfvars
