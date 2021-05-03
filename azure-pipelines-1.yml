@@ -91,7 +91,7 @@ stages:
 #                 $(imagePullSecret)
 #               containers: |
 #                 $(containerRegistry)/$(imageRepository):$(tag)
-    - stage: TerraFormValidate
+  - stage: TerraFormValidate
     jobs:
     - job: validate
       continueOnError: false
@@ -116,7 +116,7 @@ stages:
         inputs:
           provider: 'azurerm'
           command: 'validate'
-    - stage: TerraFormDeploy
+  - stage: TerraFormDeploy
     jobs:
     - deployment: deploy_terraform
       continueOnError: false
