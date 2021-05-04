@@ -1,0 +1,142 @@
+# Deploy to Azure Kubernetes Service
+# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- main
+
+resources:
+- repo: self
+
+variables:
+
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '7d8a5e97-6d64-4a05-8f14-38f5cb293838'
+  imageRepository: 'grouph'
+  containerRegistry: 'grouphminitwitacr.azurecr.io'
+  dockerfilePath: '**/Dockerfile'
+  tag: '$(Build.BuildId)'
+  imagePullSecret: 'grouphminitwitacr8535158d-auth'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+
+    - upload: manifests
+      artifact: manifests
+
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'frederikvolkersDevOpsGroupH-8405.default'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: KubernetesManifest@0
+            displayName: Create imagePullSecret
+            inputs:
+              action: createSecret
+              secretName: $(imagePullSecret)
+              dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
+
+          - task: KubernetesManifest@0
+            displayName: Deploy to Kubernetes cluster
+            inputs:
+              action: deploy
+              manifests: |
+                $(Pipeline.Workspace)/manifests/deployment.yml
+                $(Pipeline.Workspace)/manifests/service.yml
+              imagePullSecrets: |
+                $(imagePullSecret)
+              containers: |
+                $(containerRegistry)/$(imageRepository):$(tag)
+- stage: TerraFormValidate
+  displayName: Terraform Validating
+  jobs:
+  - job: validate
+    continueOnError: false
+    steps:
+    - task: TerraformInstaller@0
+      displayName: 'install'
+      inputs:
+        terraformVersion: '0.15.0'
+    - task: TerraformTaskV1@0
+      displayName: init
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        backendServiceArm: 'Gratis prøveversion(6680ee97-2b65-4276-9517-0532ac97f951)'
+        backendAzureRmResourceGroupName: 'grouph-minitwit'
+        backendAzureRmStorageAccountName: 'grouphminitwitstorage'
+        backendAzureRmContainerName: 'terraformstate'
+        backendAzureRmKey: 'tf.tfstate'
+        commandOptions: -input=false
+    - task: TerraformTaskV1@0
+      displayName: 'validate'
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
+- stage: TerraFormDeploy
+  displayName: Terraform Deploy
+  jobs:
+  - deployment: deploy_terraform
+    continueOnError: false
+    environment: 'dev'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: TerraformInstaller@0
+            displayName: 'install'
+            inputs:
+              terraformVersion: '0.15.0'
+          - task: TerraformTaskV1@0
+            displayName: init
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: 'Gratis prøveversion(6680ee97-2b65-4276-9517-0532ac97f951)'
+              backendAzureRmResourceGroupName: 'grouph-minitwit'
+              backendAzureRmStorageAccountName: 'grouphminitwitstorage'
+              backendAzureRmContainerName: 'terraformstate'
+              commandOptions: '-input=false'
+          - task: TerraformTaskV1@0
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              environmentServiceNameAzureRM: 'Gratis prøveversion(6680ee97-2b65-4276-9517-0532ac97f951)'
+                  
+          - task: TerraformTaskV1@0 
+            displayName: 'apply'
+            inputs:
+              provider: 'azurerm'
+              command: 'apply -var-file="secret.tfvars"'
+              environmentServiceNameAzureRM: 'Gratis prøveversion(6680ee97-2b65-4276-9517-0532ac97f951)'
+
