@@ -14,7 +14,7 @@ variables:
   dockerRegistryServiceConnection: '7d8a5e97-6d64-4a05-8f14-38f5cb293838'
   imageRepository: 'grouph'
   containerRegistry: 'grouphminitwitacr.azurecr.io'
-  dockerfilePath: '**/Dockerfile'
+  dockerfilePath: '**/mvc-minitwit/Dockerfile'
   tag: '$(Build.BuildId)'
   imagePullSecret: 'grouphminitwitacr8535158d-auth'
 
