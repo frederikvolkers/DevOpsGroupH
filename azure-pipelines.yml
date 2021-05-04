@@ -91,12 +91,14 @@ stages:
       inputs:
         provider: 'azurerm'
         command: 'init'
-        backendServiceArm: 'Gratis prøveversion(6680ee97-2b65-4276-9517-0532ac97f951)'
+        backendServiceArm: 'grouph_arm'
         backendAzureRmResourceGroupName: 'grouph-minitwit'
         backendAzureRmStorageAccountName: 'grouphminitwitstorage'
         backendAzureRmContainerName: 'terraformstate'
         backendAzureRmKey: 'tf.tfstate'
         commandOptions: -input=false
+
+    
     - task: TerraformTaskV1@0
       displayName: 'validate'
       inputs:
@@ -122,7 +124,7 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'init'
-              backendServiceArm: 'Gratis prøveversion(6680ee97-2b65-4276-9517-0532ac97f951)'
+              backendServiceArm: 'grouph_arm'
               backendAzureRmResourceGroupName: 'grouph-minitwit'
               backendAzureRmStorageAccountName: 'grouphminitwitstorage'
               backendAzureRmContainerName: 'terraformstate'
@@ -131,12 +133,12 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'plan'
-              environmentServiceNameAzureRM: 'Gratis prøveversion(6680ee97-2b65-4276-9517-0532ac97f951)'
+              environmentServiceNameAzureRM: 'grouph_arm'
                   
           - task: TerraformTaskV1@0 
             displayName: 'apply'
             inputs:
               provider: 'azurerm'
               command: 'apply -var-file="secret.tfvars"'
-              environmentServiceNameAzureRM: 'Gratis prøveversion(6680ee97-2b65-4276-9517-0532ac97f951)'
+              environmentServiceNameAzureRM: 'grouph_arm'
 
