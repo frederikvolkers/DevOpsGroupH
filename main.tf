@@ -10,40 +10,40 @@ resource "azurerm_resource_group" "grouphrg" { #create resource group, grouphrg 
     location = "West Europe" #netherlands vs North Europe which is Ireland
 }
 
-# resource "azurerm_kubernetes_cluster" "aks" {
-#     name = "mvc-minitwit_aks"
-#     resource_group_name = azurerm_resource_group.grouphrg.name
-#     location = azurerm_resource_group.grouphrg.location
-#     dns_prefix = "mvcminitwitaks"
+resource "azurerm_kubernetes_cluster" "aks" {
+    name = "mvc-minitwit_aks"
+    resource_group_name = azurerm_resource_group.grouphrg.name
+    location = azurerm_resource_group.grouphrg.location
+    dns_prefix = "mvcminitwitaks"
 
-#     default_node_pool {
-#         name = "default"
-#         node_count = 1
-#         vm_size = "Standard_D2_v2"
-#     }
+    default_node_pool {
+        name = "default"
+        node_count = 1
+        vm_size = "Standard_D2_v2"
+    }
 
-#     identity {
-#         type = "SystemAssigned"
-#     }
+    identity {
+        type = "SystemAssigned"
+    }
 
-#     addon_profile {
-#     aci_connector_linux {
-#       enabled = false
-#     }
+    addon_profile {
+    aci_connector_linux {
+      enabled = false
+    }
 
-#     azure_policy {
-#       enabled = false
-#     }
+    azure_policy {
+      enabled = false
+    }
 
-#     http_application_routing {
-#       enabled = false
-#     }
+    http_application_routing {
+      enabled = false
+    }
 
-#     oms_agent {
-#       enabled = false
-#     }
-#   }
-# }
+    oms_agent {
+      enabled = false
+    }
+  }
+}
 
 #TO DO TO INITIALLY CREATE RG GROUP IF IT DOESNT EXIST: 
 # 1) write terraform init in cmd line, which creates .terraform folder
@@ -56,7 +56,7 @@ resource "azurerm_resource_group" "grouphrg" { #create resource group, grouphrg 
 
 #HOW TO CREATE RESOURCES WITHIN RG, WITH ACR:
 resource "azurerm_container_registry" "acr" {
-    name                        = "mvcminitwitACR"
+    name                        = "mvcminitwitACRkube"
     resource_group_name         = azurerm_resource_group.grouphrg.name
     location                    = azurerm_resource_group.grouphrg.location
     sku                         = "Basic"
